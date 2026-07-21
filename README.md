@@ -1,8 +1,11 @@
-# Zera - Smart Contract Security Audit Platform
+# Zera AI Agent - Smart Contract Security Audit Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Open source under the [MIT License](LICENSE).**
+
+
+AI builder Agent that secures DeFi by enabling fast, automated creation, testing, auditing, and documentation.
 
 A comprehensive platform for auditing smart contracts with AI-powered security analysis and on-chain audit registration on **Mantle Testnet (Sepolia)**.
 
