@@ -175,4 +175,4 @@ npx hardhat run scripts/deploy.js --network mantleTestnet
 
 This project is open-source software licensed under the **[MIT License](LICENSE)**.
 
-Copyright © 2026 Zera contributors.
+Copyright © 2026 MiMi Money contributors.
