@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_20-b0e2a45a0449fca1cde76212e009d59d270c9d0b",
+  "solcVersion": "0.8.20",
+  "solcLongVersion": "0.8.20",
+  "userSourceNameMap": {
+    "contracts/AuditContract.sol": "project/contracts/AuditContract.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "shanghai",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/AuditContract.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract AuditRegistry {\n    struct AuditEntry {\n        uint8 stars;\n        string summary;\n        address auditor;\n        uint256 timestamp;\n    }\n\n    mapping(bytes32 => AuditEntry[]) private contractAudits;\n    mapping(address => bytes32[]) private auditorHistory;\n    bytes32[] private allContractHashes;\n    mapping(bytes32 => bool) private seenHashes;\n\n    event AuditRegistered(\n        bytes32 indexed contractHash,\n        uint8 stars,\n        string summary,\n        address indexed auditor,\n        uint256 timestamp\n    );\n\n    function registerAudit(bytes32 contractHash, uint8 stars, string calldata summary) external {\n        AuditEntry memory newAudit = AuditEntry({\n            stars: stars,\n            summary: summary,\n            auditor: msg.sender,\n            timestamp: block.timestamp\n        });\n\n        contractAudits[contractHash].push(newAudit);\n        auditorHistory[msg.sender].push(contractHash);\n\n        if (!seenHashes[contractHash]) {\n            seenHashes[contractHash] = true;\n            allContractHashes.push(contractHash);\n        }\n\n        emit AuditRegistered(contractHash, stars, summary, msg.sender, block.timestamp);\n    }\n\n    function getContractAudits(bytes32 contractHash)\n        external\n        view\n        returns (AuditEntry[] memory)\n    {\n        return contractAudits[contractHash];\n    }\n\n    function getAuditorHistory(address auditor)\n        external\n        view\n        returns (bytes32[] memory)\n    {\n        return auditorHistory[auditor];\n    }\n\n    function getLatestAudit(bytes32 contractHash)\n        external\n        view\n        returns (AuditEntry memory)\n    {\n        AuditEntry[] memory audits = contractAudits[contractHash];\n        require(audits.length > 0, \"No audits found for contract\");\n        return audits[audits.length - 1];\n    }\n\n    function getAllAudits(uint256 startIndex, uint256 limit)\n        external\n        view\n        returns (\n            bytes32[] memory contractHashes,\n            uint8[] memory stars,\n            string[] memory summaries,\n            address[] memory auditors,\n            uint256[] memory timestamps\n        )\n    {\n        uint256 total = allContractHashes.length;\n        require(startIndex < total, \"Invalid start index\");\n\n        uint256 end = startIndex + limit;\n        if (end > total) end = total;\n        uint256 resultCount = end - startIndex;\n\n        contractHashes = new bytes32[](resultCount);\n        stars = new uint8[](resultCount);\n        summaries = new string[](resultCount);\n        auditors = new address[](resultCount);\n        timestamps = new uint256[](resultCount);\n\n        for (uint256 i = 0; i < resultCount; i++) {\n            bytes32 hash = allContractHashes[startIndex + i];\n            AuditEntry memory audit = contractAudits[hash][contractAudits[hash].length - 1];\n            contractHashes[i] = hash;\n            stars[i] = audit.stars;\n            summaries[i] = audit.summary;\n            auditors[i] = audit.auditor;\n            timestamps[i] = audit.timestamp;\n        }\n    }\n\n    function getTotalContracts() external view returns (uint256) {\n        return allContractHashes.length;\n    }\n}\n"
+      }
+    }
+  }
+}
